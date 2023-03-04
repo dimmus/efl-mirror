@@ -1,4 +1,4 @@
-name: SonarCloud
+name: Build
 
 on:
   push:
@@ -13,21 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: install deps
+    - name: Install deps
       run: |
         sudo apt-get update
         sudo apt install -y build-essential check meson ninja-build
         sudo apt install -y libinput-dev libssl-dev libsystemd-dev libjpeg-dev libglib2.0-dev libgstreamer1.0-dev libluajit-5.1-dev libfreetype6-dev libfontconfig1-dev libfribidi-dev libavahi-client-dev libharfbuzz-dev libibus-1.0-dev libx11-dev libxext-dev libxrender-dev libgl1-mesa-dev libopenjp2-7-dev libwebp-dev libgif-dev libtiff5-dev libpoppler-dev libpoppler-cpp-dev libspectre-dev libraw-dev librsvg2-dev libudev-dev libmount-dev libdbus-1-dev libpulse-dev libsndfile1-dev libxcursor-dev libxcomposite-dev libxinerama-dev libxrandr-dev libxtst-dev libxss-dev libgstreamer-plugins-base1.0-dev doxygen libscim-dev libxdamage-dev libwebp-dev libunwind-dev libheif-dev libavif-dev libyuv-dev
-    - name: Meson setup
+    - name: Setup with meson
       run: meson . build
-    - name: Install sonar-scanner and build-wrapper
-      uses: SonarSource/sonarcloud-github-c-cpp@v1.3
-    - name: Run build-wrapper
-      run: |
-        build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} ninja -C build
-    - name: Run sonar-scanner
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+    - name: Compile with ninja
+      run: ninja -C build
